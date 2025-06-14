@@ -1,0 +1,4 @@
+{
+    "command": "PORT=<port> BROWSER=none npm start",
+    "working_directory": "/home/kavia/workspace/code-generation/surfwave-logger-39941-7b10b375/surf_sync_frontend"
+}
