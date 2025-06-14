@@ -1,56 +1,48 @@
-const path = require('path');
+/*
+  Custom Webpack config for KAVIA visual editing / rapid preview
+*/
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
 
-module.exports = (env = {}) => ({
-  entry: './src/index.js',
+module.exports = {
+  entry: path.resolve(__dirname, '../src/index.js'),
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, '../dist'),
     filename: 'bundle.js',
-    clean: true,
-  },
-  module: {
-    rules: [
-      {
-        test: /\.(js|jsx)$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-	    presets: [
-                '@babel/preset-env',
-                ['@babel/preset-react', { runtime: 'automatic' }]
-            ],
-            plugins: env.EDIT_MODE ? [path.resolve('./.ve/babel-plugin-jsx-editor-id.js')] : [],
-          },
-        },
-      },
-      {
-        test: /\.css$/i,
-        use: ['style-loader', 'css-loader'],
-      },
-      {
-        test: /\.(png|jpg|gif|svg)$/i,
-        type: 'asset/resource',
-      },
-    ],
+    publicPath: '/', // This line is correct for dev server
   },
   resolve: {
     extensions: ['.js', '.jsx'],
   },
-  devServer: {
-    static: './public',
-    hot: true,
-    port: 3000,
-    host: '0.0.0.0',
-    allowedHosts: 'all',
+  module: {
+    rules: [
+      {
+        test: /\.jsx?$/,
+        exclude: /node_modules/,
+        use: ['babel-loader'],
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
+      }
+    ],
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './public/index.html',
+      template: path.resolve(__dirname, './index.html'),
+      inject: 'body',
+      minify: false,
+      // Use the environment variable (for SPA dev, can be blank or '/')
       templateParameters: {
-        PUBLIC_URL: '',
+        PUBLIC_URL: process.env.PUBLIC_URL || '',
       },
     }),
   ],
-  mode: env.production ? 'production' : 'development',
-});
+  devServer: {
+    static: {
+      directory: path.resolve(__dirname, '../dist'),
+    },
+    port: 3000,
+    historyApiFallback: true,
+  },
+};
